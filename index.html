@@ -3,18 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Jogo da Memória - Pink Flame (Otimizado)</title>
+<title>Jogo da Memória </title>
 
 <style>
 :root {
   --card-size: min(130px, 22vw);
-  --pink-border: #ff93c8;
+  --pink-border: #d36d9e;
   --dark-pink: #c71585;
+  
+  --bg-dark: #e27dae; 
+  --bg-gradient: linear-gradient(180deg, #ec388fd0, #d173a2);
 }
 
 body {
   font-family: "Arial", sans-serif;
-  background: linear-gradient(180deg, #ffe6f5, #fff4fc);
+  background: var(--bg-gradient);
+  color: white;
   min-height: 100vh;
   margin: 0;
   display: flex;
@@ -33,12 +37,30 @@ body {
 
 .titulo-grande {
   font-size: clamp(2rem, 8vw, 3.5rem);
-  color: var(--dark-pink);
+  color: #c00763;
   text-align: center;
-  margin: 20px 0 30px 0;
+  margin: 10px 0 20px 0;
   font-weight: bold;
-  text-shadow: 2px 2px 5px rgba(199, 21, 133, 0.2);
+  text-shadow: 0 0 15px rgba(219, 75, 147, 0.89);
   width: 100%;
+}
+
+
+.status-container {
+  display: flex;
+  gap: 30px;
+  margin-bottom: 20px;
+  background: rgb(177, 78, 155);
+  padding: 10px 25px;
+  border-radius: 50px;
+  border: 1px solid rgba(201, 78, 137, 0.966);
+  font-size: 1.2rem;
+  backdrop-filter: blur(5px);
+}
+
+.status-item span {
+  color: #ff9ac8;
+  font-weight: bold;
 }
 
 .menu-botoes {
@@ -56,14 +78,13 @@ button {
   color: white;
   cursor: pointer;
   transition: transform 0.2s, background 0.3s;
-  box-shadow: 0 4px 10px rgba(255, 102, 179, 0.3);
+  box-shadow: 0 4px 15px rgba(245, 153, 199, 0.979);
 }
 
 button:hover {
   background: #ff4da6;
   transform: scale(1.05);
 }
-
 
 .board {
   display: grid;
@@ -90,12 +111,10 @@ button:hover {
   will-change: transform; 
 }
 
-
 @keyframes glow-pink {
   0% { box-shadow: 0 0 5px #ff1493, 0 0 10px #ff69b4; }
   100% { box-shadow: 0 0 15px #ff1493, 0 0 25px #ff69b4; }
 }
-
 
 .card.flip .card-inner {
   transform: rotateY(180deg);
@@ -135,6 +154,7 @@ button:hover {
 @media (max-width: 480px) {
   .board { gap: 10px; }
   .titulo-grande { font-size: 2.2rem; }
+  .status-container { gap: 15px; font-size: 1rem; }
 }
 </style>
 </head>
@@ -143,6 +163,11 @@ button:hover {
 
 <div class="main-container"> 
   <h1 class="titulo-grande">🎀 Jogo da Memória 🎀</h1>
+
+  <div class="status-container">
+    <div class="status-item">Tempo: <span id="timer">00:00</span></div>
+    <div class="status-item">Tentativas: <span id="tries">0</span></div>
+  </div>
 
   <div class="menu-botoes">
     <button id="btnIniciar">Iniciar jogo</button>
@@ -156,21 +181,26 @@ button:hover {
 
 <script>
 const imgs = [
-  "img/img-1.png", 
-  "img/img-2.png",
-  "img/img-3.png",
-  "img/img-4.png",
-  "img/img-5.png",
-  "img/img-6.png"
+  "img/img-1.png", "img/img-2.png", "img/img-3.png",
+  "img/img-4.png", "img/img-5.png", "img/img-6.png"
 ];
 
 const board = document.getElementById("board");
+const timerDisplay = document.getElementById("timer");
+const triesDisplay = document.getElementById("tries");
 const audioFundo = document.getElementById("audioFundo");
+
 let deck = [];
 let first = null;
 let second = null;
 let lock = false;
 let audioIniciado = false;
+
+
+let tentativas = 0;
+let segundos = 0;
+let cronometro;
+let paresEncontrados = 0;
 
 function iniciarAudio() {
   if (!audioIniciado) {
@@ -178,6 +208,22 @@ function iniciarAudio() {
     audioFundo.play().catch(() => {});
     audioIniciado = true;
   }
+}
+
+function formatarTempo(s) {
+  const min = Math.floor(s / 60);
+  const seg = s % 60;
+  return `${min.toString().padStart(2, '0')}:${seg.toString().padStart(2, '0')}`;
+}
+
+function iniciarCronometro() {
+  clearInterval(cronometro);
+  segundos = 0;
+  timerDisplay.innerText = "00:00";
+  cronometro = setInterval(() => {
+    segundos++;
+    timerDisplay.innerText = formatarTempo(segundos);
+  }, 1000);
 }
 
 document.getElementById("btnIniciar").onclick = (e) => {
@@ -227,13 +273,22 @@ function flip(card){
 
   second = card;
   lock = true;
+  
+  
+  tentativas++;
+  triesDisplay.innerText = tentativas;
 
   if(first.querySelector("img").src === second.querySelector("img").src){
-    
+    paresEncontrados++;
     first = second = null;
     lock = false;
+
+    
+    if(paresEncontrados === imgs.length) {
+      clearInterval(cronometro);
+      setTimeout(() => alert(`Parabéns! Você venceu!\nTempo: ${formatarTempo(segundos)}\nTentativas: ${tentativas}`), 500);
+    }
   } else {
-   
     setTimeout(() => {
       if(first) first.classList.remove("flip");
       if(second) second.classList.remove("flip");
@@ -244,18 +299,26 @@ function flip(card){
 }
 
 function startGame(){
+  
+  clearInterval(cronometro);
+  tentativas = 0;
+  paresEncontrados = 0;
+  segundos = 0;
+  triesDisplay.innerText = "0";
+  timerDisplay.innerText = "00:00";
+  
   first = second = null;
   lock = true;
   deck = shuffle([...imgs, ...imgs]);
   render();
 
-  
   const allCards = document.querySelectorAll(".card");
   allCards.forEach(card => card.classList.add("flip"));
   
   setTimeout(() => {
     allCards.forEach(card => card.classList.remove("flip"));
     lock = false;
+    iniciarCronometro(); 
   }, 2000);
 }
 
