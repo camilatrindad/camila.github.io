@@ -2,30 +2,38 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Jogo da Memória </title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+<title>Jogo da Memória Hamtaro</title>
 
 <style>
 :root {
-  --card-size: min(130px, 22vw);
-  --pink-border: #d36d9e;
-  --dark-pink: #c71585;
   
-  --bg-dark: #cc6295; 
-  --bg-gradient: linear-gradient(180deg, #ec388fd0, #af5783);
+  --card-size: min(85px, 21vw); 
+  --pink-border: #d36d9e;
+  --dark-pink: #c00763;
+  
+  --bg-gradient: linear-gradient(180deg, #e29eb9, #cf348f);
+  
+  --flame-color: #ff007f;
+  --flame-glow: #ff8c00;
+}
+
+@media (min-width: 600px) {
+  :root { --card-size: 115px; }
 }
 
 body {
   font-family: "Arial", sans-serif;
   background: var(--bg-gradient);
-  color: white;
+  color: var(--dark-pink);
   min-height: 100vh;
   margin: 0;
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding: 20px;
+  padding: 15px;
   box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .main-container {
@@ -33,72 +41,81 @@ body {
   flex-direction: column;
   align-items: center;
   width: 100%;
+  max-width: 500px;
 }
 
 .titulo-grande {
-  font-size: clamp(2rem, 8vw, 3.5rem);
-  color: #c00763;
+  font-size: clamp(1.8rem, 8vw, 2.5rem);
+  color: var(--dark-pink);
   text-align: center;
-  margin: 10px 0 20px 0;
+  margin: 10px 0;
   font-weight: bold;
-  text-shadow: 0 0 15px rgba(219, 75, 147, 0.89);
-  width: 100%;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
 }
 
 
 .status-container {
   display: flex;
-  gap: 30px;
+  justify-content: space-around;
+  width: 100%;
   margin-bottom: 20px;
-  background: rgb(177, 78, 155);
-  padding: 10px 25px;
-  border-radius: 50px;
-  border: 1px solid rgba(201, 78, 137, 0.966);
-  font-size: 1.2rem;
-  backdrop-filter: blur(5px);
+  background: rgb(238, 141, 190);
+  padding: 12px 0;
+  border-radius: 20px;
+  border: 2px solid var(--pink-border);
+  box-shadow: 0 4px 10px rgba(211, 109, 158, 0.2);
+}
+
+.status-item {
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #666;
 }
 
 .status-item span {
-  color: #f874b0;
-  font-weight: bold;
+  display: block;
+  font-size: 1.2rem;
+  color: var(--dark-pink);
 }
 
 .menu-botoes {
-  margin-bottom: 30px;
   display: flex;
-  gap: 15px;
+  width: 100%;
+  justify-content: center;
+  margin-bottom: 20px;
 }
 
 button {
-  padding: 12px 25px;
-  font-size: 16px;
+  padding: 12px 30px;
+  font-size: 1rem;
+  font-weight: bold;
   border: none;
-  border-radius: 12px;
-  background: #ec3490;
-  color: white;
+  border-radius: 50px;
+  background: #e968a8;
+  color: rgb(245, 240, 243);
   cursor: pointer;
-  transition: transform 0.2s, background 0.3s;
-  box-shadow: 0 4px 15px rgba(245, 153, 199, 0.979);
+  box-shadow: 0 4px 12px rgba(255, 102, 179, 0.4);
+  transition: transform 0.2s;
 }
 
-button:hover {
-  background: #ff4da6;
-  transform: scale(1.05);
+button:active {
+  transform: scale(0.95);
 }
+
 
 .board {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
   width: 100%;
-  max-width: 600px;
 }
 
 .card {
   width: var(--card-size);
   height: var(--card-size);
   perspective: 1000px;
-  cursor: pointer;
 }
 
 .card-inner {
@@ -106,28 +123,29 @@ button:hover {
   height: 100%;
   transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   transform-style: preserve-3d;
-  border-radius: 15px;
   position: relative;
-  will-change: transform; 
+  will-change: transform;
 }
 
-@keyframes glow-pink {
-  0% { box-shadow: 0 0 5px #ff1493, 0 0 10px #ff69b4; }
-  100% { box-shadow: 0 0 15px #ff1493, 0 0 25px #ff69b4; }
+
+@keyframes flameGlow {
+  0% { box-shadow: 0 0 5px var(--flame-color), 0 0 10px var(--flame-color); }
+  50% { box-shadow: 0 0 15px var(--flame-glow), 0 0 25px var(--flame-color); }
+  100% { box-shadow: 0 0 5px var(--flame-color), 0 0 10px var(--flame-color); }
 }
 
 .card.flip .card-inner {
   transform: rotateY(180deg);
-  animation: glow-pink 1.5s infinite alternate ease-in-out;
+  animation: flameGlow 1.5s infinite alternate ease-in-out; 
 }
 
 .face {
   position: absolute;
   inset: 0;
   backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   border-radius: 15px;
-  border: 3px solid var(--pink-border);
-  -webkit-backface-visibility: hidden; 
+  border: 2px solid var(--pink-border);
 }
 
 .back {
@@ -135,7 +153,7 @@ button:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 30px;
+  font-size: 1.8rem;
   color: white;
 }
 
@@ -148,13 +166,7 @@ button:hover {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 12px;
-}
-
-@media (max-width: 480px) {
-  .board { gap: 10px; }
-  .titulo-grande { font-size: 2.2rem; }
-  .status-container { gap: 15px; font-size: 1rem; }
+  border-radius: 13px;
 }
 </style>
 </head>
@@ -165,12 +177,11 @@ button:hover {
   <h1 class="titulo-grande">🎀 Jogo da Memória 🎀</h1>
 
   <div class="status-container">
-    <div class="status-item">Tempo: <span id="timer">00:00</span></div>
-    <div class="status-item">Tentativas: <span id="tries">0</span></div>
+    <div class="status-item">TEMPO <span id="timer">00:00</span></div>
+    <div class="status-item">TENTATIVAS <span id="tries">0</span></div>
   </div>
 
   <div class="menu-botoes">
-    <button id="btnIniciar">Iniciar jogo</button>
     <button id="restart">Reiniciar</button>
   </div>
 
@@ -180,27 +191,14 @@ button:hover {
 <audio id="audioFundo" loop src="audio/musicafofa.mp3"></audio>
 
 <script>
-const imgs = [
-  "img/img-1.png", "img/img-2.png", "img/img-3.png",
-  "img/img-4.png", "img/img-5.png", "img/img-6.png"
-];
-
+const imgs = ["img/img-1.png", "img/img-2.png", "img/img-3.png", "img/img-4.png", "img/img-5.png", "img/img-6.png"];
 const board = document.getElementById("board");
 const timerDisplay = document.getElementById("timer");
 const triesDisplay = document.getElementById("tries");
 const audioFundo = document.getElementById("audioFundo");
 
-let deck = [];
-let first = null;
-let second = null;
-let lock = false;
-let audioIniciado = false;
-
-
-let tentativas = 0;
-let segundos = 0;
-let cronometro;
-let paresEncontrados = 0;
+let deck = [], first = null, second = null, lock = false, audioIniciado = false;
+let tentativas = 0, segundos = 0, cronometro, paresEncontrados = 0;
 
 function iniciarAudio() {
   if (!audioIniciado) {
@@ -219,26 +217,10 @@ function formatarTempo(s) {
 function iniciarCronometro() {
   clearInterval(cronometro);
   segundos = 0;
-  timerDisplay.innerText = "00:00";
   cronometro = setInterval(() => {
     segundos++;
     timerDisplay.innerText = formatarTempo(segundos);
   }, 1000);
-}
-
-document.getElementById("btnIniciar").onclick = (e) => {
-  e.stopPropagation();
-  iniciarAudio();
-  startGame();
-};
-
-document.getElementById("restart").onclick = (e) => {
-  e.stopPropagation();
-  startGame();
-};
-
-function shuffle(arr){
-  return arr.sort(() => Math.random() - 0.5);
 }
 
 function render(){
@@ -246,18 +228,8 @@ function render(){
   deck.forEach(src => {
     const card = document.createElement("div");
     card.className = "card";
-    card.innerHTML = `
-      <div class="card-inner">
-        <div class="face back">✨</div>
-        <div class="face front">
-          <img src="${src}" alt="card">
-        </div>
-      </div>
-    `;
-   
-    card.onclick = () => {
-      if(!lock) flip(card);
-    };
+    card.innerHTML = `<div class="card-inner"><div class="face back">✨</div><div class="face front"><img src="${src}"></div></div>`;
+    card.onclick = () => { if(!lock) flip(card); };
     board.appendChild(card);
   });
 }
@@ -265,16 +237,11 @@ function render(){
 function flip(card){
   if(lock || card.classList.contains("flip")) return;
   card.classList.add("flip");
-
-  if(!first){
-    first = card;
-    return;
-  }
-
+  
+  if(!first){ first = card; return; }
+  
   second = card;
   lock = true;
-  
-  
   tentativas++;
   triesDisplay.innerText = tentativas;
 
@@ -282,16 +249,14 @@ function flip(card){
     paresEncontrados++;
     first = second = null;
     lock = false;
-
-    
     if(paresEncontrados === imgs.length) {
       clearInterval(cronometro);
-      setTimeout(() => alert(`Parabéns! Você venceu!\nTempo: ${formatarTempo(segundos)}\nTentativas: ${tentativas}`), 500);
+      setTimeout(() => alert(`Vitória!\nTempo: ${formatarTempo(segundos)}\nTentativas: ${tentativas}`), 500);
     }
   } else {
     setTimeout(() => {
-      if(first) first.classList.remove("flip");
-      if(second) second.classList.remove("flip");
+      first.classList.remove("flip");
+      second.classList.remove("flip");
       first = second = null;
       lock = false;
     }, 1000); 
@@ -299,28 +264,28 @@ function flip(card){
 }
 
 function startGame(){
-  
   clearInterval(cronometro);
-  tentativas = 0;
-  paresEncontrados = 0;
-  segundos = 0;
-  triesDisplay.innerText = "0";
-  timerDisplay.innerText = "00:00";
-  
-  first = second = null;
+  tentativas = 0; paresEncontrados = 0; segundos = 0;
+  triesDisplay.innerText = "0"; timerDisplay.innerText = "00:00";
   lock = true;
-  deck = shuffle([...imgs, ...imgs]);
+  
+  deck = [...imgs, ...imgs].sort(() => Math.random() - 0.5);
   render();
 
-  const allCards = document.querySelectorAll(".card");
-  allCards.forEach(card => card.classList.add("flip"));
+  
+  const cards = document.querySelectorAll(".card");
+  cards.forEach(c => c.classList.add("flip"));
   
   setTimeout(() => {
-    allCards.forEach(card => card.classList.remove("flip"));
+    cards.forEach(c => c.classList.remove("flip"));
     lock = false;
-    iniciarCronometro(); 
+    iniciarCronometro();
   }, 2000);
 }
+
+
+document.getElementById("restart").onclick = startGame;
+
 
 window.onload = startGame;
 </script>
