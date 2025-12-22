@@ -100,3 +100,5 @@ document.getElementById("restart").onclick = startGame;
 
 window.onload = startGame;
 
+<audio id="audioFundo" loop src="audio/musicafofa.mp3"></audio>
+
