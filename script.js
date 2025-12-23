@@ -1,23 +1,33 @@
+const audioFundo = document.getElementById("musicaFundo");
+const bestTimeDisplay = document.getElementById("best-time");
+let audioIniciado = false;
 
 
+function carregarRecorde() {
+    const recorde = localStorage.getItem("melhorTempo");
+    if (recorde) {
+        bestTimeDisplay.innerText = formatarTempo(parseInt(recorde));
+    }
+}
 
+function tocarMusica() {
+    if (!audioIniciado && audioFundo) {
+        audioFundo.volume = 0.3; 
+        audioFundo.play().then(() => {
+            audioIniciado = true;
+        }).catch(error => console.log("Aguardando interação."));
+    }
+}
+
+document.addEventListener("click", tocarMusica, { once: true });
 
 const imgs = ["img/img-1.png", "img/img-2.png", "img/img-3.png", "img/img-4.png", "img/img-5.png", "img/img-6.png"];
 const board = document.getElementById("board");
 const timerDisplay = document.getElementById("timer");
 const triesDisplay = document.getElementById("tries");
-const audioFundo = document.getElementById("musicafofa.mp3");
 
-let deck = [], first = null, second = null, lock = false, audioIniciado = false;
+let deck = [], first = null, second = null, lock = false;
 let tentativas = 0, segundos = 0, cronometro, paresEncontrados = 0;
-
-function iniciarAudio() {
-  if (!audioIniciado) {
-    audioFundo.volume = 0.2; 
-    audioFundo.play().catch(() => {});
-    audioIniciado = true;
-  }
-}
 
 function formatarTempo(s) {
   const min = Math.floor(s / 60);
@@ -60,8 +70,10 @@ function flip(card){
     paresEncontrados++;
     first = second = null;
     lock = false;
+    
     if(paresEncontrados === imgs.length) {
       clearInterval(cronometro);
+      verificarRecorde(segundos);
       setTimeout(() => alert(`Vitória!\nTempo: ${formatarTempo(segundos)}\nTentativas: ${tentativas}`), 500);
     }
   } else {
@@ -74,7 +86,18 @@ function flip(card){
   }
 }
 
+function verificarRecorde(tempoAtual) {
+    const recordeSalvo = localStorage.getItem("melhorTempo");
+    if (!recordeSalvo || tempoAtual < parseInt(recordeSalvo)) {
+        localStorage.setItem("melhorTempo", tempoAtual);
+        bestTimeDisplay.innerText = formatarTempo(tempoAtual);
+        alert("🎉 Novo Recorde!");
+    }
+}
+
 function startGame(){
+  tocarMusica(); 
+  carregarRecorde();
   clearInterval(cronometro);
   tentativas = 0; paresEncontrados = 0; segundos = 0;
   triesDisplay.innerText = "0"; timerDisplay.innerText = "00:00";
@@ -83,7 +106,6 @@ function startGame(){
   deck = [...imgs, ...imgs].sort(() => Math.random() - 0.5);
   render();
 
-  
   const cards = document.querySelectorAll(".card");
   cards.forEach(c => c.classList.add("flip"));
   
@@ -94,9 +116,16 @@ function startGame(){
   }, 2000);
 }
 
-
 document.getElementById("restart").onclick = startGame;
-
-
 window.onload = startGame;
 
+const btnMute = document.getElementById("toggleMute");
+btnMute.onclick = () => {
+    if (audioFundo.muted) {
+        audioFundo.muted = false;
+        btnMute.innerText = "🔊";
+    } else {
+        audioFundo.muted = true;
+        btnMute.innerText = "🔇";
+    }
+};
