@@ -2,44 +2,34 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-  <link rel="icon" type="image/icon" href="favicon.ico">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
   <title>Jogo da Memória Hamtaro</title>
-
   <link rel="stylesheet" href="style.css">
 </head>
+<body>
+  
+  <audio id="musicaFundo" loop>
+      <source src="audio/musicafofa.mp3" type="audio/mpeg">
+  </audio>
 
-<body onclick="iniciarAudio()">
+  <div class="main-container"> 
+    <h1 class="titulo-grande">🎀 Jogo da Memória 🎀</h1>
 
-<div class="main-container"> 
-  <h1 class="titulo-grande">🎀 Jogo da Memória 🎀</h1>
+    <div class="status-container">
+      <div class="status-item">TEMPO <span id="timer">00:00</span></div>
+      <div class="status-item">RECORDE <span id="best-time">--:--</span></div>
+      <div class="status-item">TENTATIVAS <span id="tries">0</span></div>
+    </div>
 
-  <div class="status-container">
-    <div class="status-item">TEMPO <span id="timer">00:00</span></div>
-    <div class="status-item">TENTATIVAS <span id="tries">0</span></div>
+    <div class="menu-botoes">
+      <button id="restart">Reiniciar</button>
+      <button id="toggleMute">🔊</button>
+    </div>
+
+    <div id="board" class="board"></div>
   </div>
 
-  <div class="menu-botoes">
-    <button id="restart">Reiniciar</button>
-  </div>
-
-  <div id="board" class="board"></div>
-</div>
-
-<audio id="audio" loop src="audio/musicafofa.mp3"></audio>
-
-
-<script src="script.js"></script>
-
-
-<source><div class="">
-<img src="img/img-1.png
-img/img-2.png
-img/img-3.png
-img/img-4.png
-img/img-5.png
-img/img-6.png
-" alt="">
+  <script src="script.js"></script>
 </body>
 </html>
